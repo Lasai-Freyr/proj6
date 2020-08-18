@@ -1,4 +1,5 @@
 const Sauce = require('../models/Sauce');
+const User = require('../models/User');
 const fs = require('fs');
 
 exports.createSauce = (req, res, next) => {
@@ -50,141 +51,141 @@ exports.getAllSauces = ( req, res, next) => {
 };
 
 exports.Likes = ( req, res, next) =>  {
-   // Check if id was passed provided in request body
-   if (!req.body.id) {
+   // Check if id was passed provided in request body   
+  console.log("étape 1");
+  if (!req.params.id) {  console.log("étape 2");
     res.json({ success: false, message: 'No id was provided.' }); // Return error message
-  } else {
+  } else
+  {
     // Search the database with id
-    Sauce.findOne({ _id: req.body.id }, (err, sauce) => {
+    Sauce.findOne({ _id: req.params.id }, (err, sauce) => {
       // Check if error was encountered
-      if (err) {
+      if (err) { console.log("étape A");
         res.json({ success: false, message: 'Invalid sauce id' }); // Return error message
-      } else {
-        // Check if id matched the id of a blog post in the database
-        if (!blog) {
+      } else
+      {
+        // Check if id matched the id of a sauce post in the database
+        if (!sauce) { console.log("étape 3");
           res.json({ success: false, message: 'That sauce was not found.' }); // Return error message
-        } else {
+        } else 
+        {   console.log("étape 3 bis");
           // Get data from user that is signed in
-          User.findOne({ _id: req.decoded.userId }, (err, user) => {
+          User.findOne({ _id: req.body.userId }, (err, user) => {  console.log("étape 3 ters");     
             // Check if error was found
-            if (err) {
+            if (err) {  console.log("étape B");
               res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-            } else {
-              // Check if id of user in session was found in the database
-              if (!user) {
-                res.json({ success: false, message: 'Could not authenticate user.' }); // Return error message
-              } else {
-                // Check if user who liked post is the same user that originally created the blog post
-                if (user.userId === sauce.userId) {
+            } else
+            { console.log("étape 4");
+             console.log(req.body.userId);
+             console.log(user.id);
+                // Check if user who liked post is the same user that originally created the sauce post
+                if (user.id === sauce.userId) {  console.log("étape 5");
                   res.json({ success: false, messagse: 'Cannot like your own sauce.' }); // Return error message
-                } else {
-                  // Check if the user who liked the post has already liked the blog post before
-                  if (sauce.usersLiked.includes(user.userId)) {
-                    res.json({ success: false, message: 'You already liked this sauce.' }); // Return error message
-                  } else {
+                } else
+                {
+                  // Check if the user who liked the post has already liked the sauce post before
+                  if (sauce.usersLiked.includes(user.id)) {  console.log("étape 6");
+                  sauce.likes--; // Decrease likes by one
+                  console.log("étape 6.1");
+                  const arrayIndex = sauce.usersLiked.indexOf(user.id); // Check where username is inside of the array
+                  console.log("étape 6.2");
+                  sauce.usersLiked.splice(arrayIndex, 1); // Remove username from index
+                  console.log("étape 6.3");
+                  } else
+                  {
                     // Check if user who liked post has previously disliked a post
-                    if (sauce.usersDisliked.includes(user.userId)) {
-                      blog.dislikes--; // Reduce the total number of dislikes
-                      const arrayIndex = sauce.usersDisliked.indexOf(user.userId); // Get the index of the username in the array for removal
+                    if (sauce.usersDisliked.includes(user.id)) { console.log("étape 7");
+                      sauce.dislikes--; // Reduce the total number of dislikes
+                      const arrayIndex = sauce.usersDisliked.indexOf(user.id); // Get the index of the username in the array for removal
                       sauce.usersDisliked.splice(arrayIndex, 1); // Remove user from array
                       sauce.likes++; // Increment likes
-                      sauce.usersLiked.push(user.userId); // Add username to the array of likedBy array
-                      // Save blog post data
-                      sauce.save((err) => {
-                        // Check if error was found
-                        if (err) {
-                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else {
-                          res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                        }
-                      });
-                    } else {
+                      sauce.usersLiked.push(user.id); // Add username to the array of likedBy array                    
+                    } else 
+                    {  console.log("étape 8.3");
                       sauce.likes++; // Incriment likes
-                      sauce.usersLiked.push(user.userId); // Add liker's username into array of likedBy
-                      // Save blog post
-                      sauce.save((err) => {
-                        if (err) {
-                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else {
-                          res.json({ success: true, message: 'Blog liked!' }); // Return success message
-                        }
-                      });
-                    }
-                  }
+                      sauce.usersLiked.push(user.id); // Add liker's username into array of likedBy                      
+                    }  
                 }
-              }
+                // Save sauce post data
+                sauce.save((err) => { console.log("étape 8");
+                // Check if error was found
+                if (err) {  console.log("étape C");
+                  res.json({ success: false, message: 'Something went wrong.' }); // Return error message
+                } else
+                {  console.log("étape 8.2");
+                  res.json({ success: true, message: 'Sauce liked!' }); // Return success message
+                }
+              });
+            }            
             }
           });
         }
       }
     });
   }
+  console.log("étape finale");
 };
 
 exports.Dislikes = ( req, res, next) => {
   // Check if id was provided inside the request body
-  if (!req.body.id) {
+  if (!req.params.id) {
     res.json({ success: false, message: 'No id was provided.' }); // Return error message
-  } else {
-    // Search database for blog post using the id
-    Sauce.findOne({ _id: req.body.id }, (err, blog) => {
+  } else
+  {
+    // Search database for sauce post using the id
+    Sauce.findOne({ _id: req.params.id }, (err, sauce) => {
       // Check if error was found
       if (err) {
         res.json({ success: false, message: 'Invalid sauce id' }); // Return error message
-      } else {
-        // Check if blog post with the id was found in the database
+      } else 
+      {
+        // Check if sauce post with the id was found in the database
         if (!sauce) {
           res.json({ success: false, message: 'That sauce was not found.' }); // Return error message
-        } else {
+        } else
+        {
           // Get data of user who is logged in
-          User.findOne({ _id: req.decoded.userId }, (err, user) => {
+          User.findOne({ _id: req.body.userId}, (err, user) => {
             // Check if error was found
             if (err) {
               res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-            } else {
-              // Check if user was found in the database
-              if (!user) {
-                res.json({ success: false, message: 'Could not authenticate user.' }); // Return error message
-              } else {
-                // Check if user who disliekd post is the same person who originated the blog post
-                if (user.userId === sauce.userId) {
-                  res.json({ success: false, messagse: 'Cannot dislike your own sauce.' }); // Return error message
-                } else {
-                  // Check if user who disliked post has already disliked it before
-                  if (sauce.usersDisliked.includes(user.userId)) {
-                    res.json({ success: false, message: 'You already disliked this sauce.' }); // Return error message
-                  } else {
-                    // Check if user has previous disliked this post
-                    if (sauce.usersLiked.includes(user.userId)) {
-                      sauce.likes--; // Decrease likes by one
-                      const arrayIndex = sauce.usersLiked.indexOf(user.userId); // Check where username is inside of the array
-                      sauce.usersLiked.splice(arrayIndex, 1); // Remove username from index
-                      sauce.dislikes++; // Increase dislikeds by one
-                      sauce.usersDisliked.push(user.userId); // Add username to list of dislikers
-                      // Save blog data
-                      sauce.save((err) => {
-                        // Check if error was found
-                        if (err) {
-                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else {
-                          res.json({ success: true, message: 'sauce disliked!' }); // Return success message
-                        }
-                      });
-                    } else {
-                      sauce.dislikes++; // Increase likes by one
-                      sauce.usersDisliked.push(user.userId); // Add username to list of likers
-                      // Save blog data
-                      sauce.save((err) => {
-                        // Check if error was found
-                        if (err) {
-                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else {
-                          res.json({ success: true, message: 'sauce disliked!' }); // Return success message
-                        }
-                      });
-                    }
+            } else 
+            {              
+              // Check if user who disliekd post is the same person who originated the sauce post
+              if (user.id === sauce.userId) {
+                res.json({ success: false, messagse: 'Cannot dislike your own sauce.' }); // Return error message
+              } else
+              {
+                // Check if user who disliked post has already disliked it before
+                if (sauce.usersDisliked.includes(user.id)) {
+                  res.json({ success: false, message: 'You already disliked this sauce.' }); // Return error message
+                } else
+                {
+                  // Check if user has previous disliked this post
+                  if (sauce.usersLiked.includes(user.id)) {
+                    sauce.likes--; // Decrease likes by one
+                    const arrayIndex = sauce.usersLiked.indexOf(user.id); // Check where username is inside of the array
+                    sauce.usersLiked.splice(arrayIndex, 1); // Remove username from index
+                    sauce.dislikes++; // Increase dislikeds by one
+                    sauce.usersDisliked.push(user.id); // Add username to list of dislikers
+                    // Save sauce data
+                   
+                  } else
+                  {
+                    sauce.dislikes++; // Increase likes by one
+                    sauce.usersDisliked.push(user.id); // Add username to list of likers
+                   
                   }
                 }
+               sauce.save((err) => {
+                      // Check if error was found
+                      if (err) {
+                        res.json({ success: false, message: 'Something went wrong.' }); // Return error message
+                      } else
+                      {
+                        res.json({ success: true, message: 'sauce disliked!' }); // Return success message
+                      }
+                    });
               }
             }
           });
