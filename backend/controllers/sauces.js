@@ -49,11 +49,10 @@ exports.getAllSauces = ( req, res, next) => {
     .catch( error => res.status(400).json( {error}));
 };
 
-exports.addLike = ( req, res, next) =>  {
+exports.Likes = ( req, res, next) =>  {
   const sauceObject = JSON.parse(req.body.sauce);
-  delete sauceObject.likes;
+   
   const sauce = new Sauce({
-    ...sauceObject,
   
   });
   sauce.save()
