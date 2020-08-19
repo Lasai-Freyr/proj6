@@ -78,80 +78,73 @@ exports.Likes = ( req, res, next) =>  {
             res.json({ success: false, message: 'Something went wrong.' }); // Return error message
             } else
             { console.log("étape 4");
-              
-                // Check if user who liked post is the same user that originally created the sauce post
-                if (user.id === sauce.userId) {  console.log("étape 5");
-                    res.json({ success: false, messagse: 'Cannot like your own sauce.' }); // Return error message
-                } else
-                {
-                  if (like == 1){
-                      sauce.likes++; // Incriment likes
-                      sauce.usersLiked.push(user.id); // Add liker's username into array of likedBy 
-                      // Save sauce post data
-                      sauce.save((err) => { console.log("étape 8");
-                      // Check if error was found
-                        if (err) {  console.log("étape C");
-                              res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                          } else
-                        {   console.log("étape 8.2");
-                            res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                          }
-                        console.log("étape finale");
-                      });  
-                  }   else
-                  {
-                    if (like == -1) {
-                      sauce.dislikes++; // Incriment likes
-                      sauce.usersDisliked.push(user.id); // Add liker's username into array of likedBy
-                      // Save sauce post data
-                      sauce.save((err) => { console.log("étape 8");
-                      // Check if error was found
-                        if (err) {  console.log("étape C");
-                            res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else
-                        {  console.log("étape 8.2");
-                            res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                        }
-                        console.log("étape finale");
-                      });
-                    } else
-                    { 
-                      if( like == 0);{
-                        if (sauce.usersLiked.includes(user.id)){
-                            sauce.likes--; // Decrease likes by one
-                            console.log("étape 6.1");
-                            const arrayIndex = sauce.usersLiked.indexOf(user.id); // Check where username is inside of the array                                
-                            sauce.usersLiked.splice(arrayIndex, 1); // Remove username from index
-                            console.log("étape 6.3");  
-                        } else
-                        {
-                            if (sauce.usersDisliked.includes(user.id)) {
-                              console.log("étape 7");
-                              sauce.dislikes--; // Reduce the total number of dislikes
-                              const arrayIndex = sauce.usersDisliked.indexOf(user.id); // Get the index of the username in the array for removal
-                              sauce.usersDisliked.splice(arrayIndex, 1); // Remove user from array
-                            }
-                        }
-                        // Save sauce post data
-                        sauce.save((err) => { console.log("étape 8");
-                        // Check if error was found
-                          if (err) {  console.log("étape C");
-                              res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                          } else
-                          {  console.log("étape 8.2");
-                              res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                          }
-                          console.log("étape finale");
-                      });
+            
+            if (like == 1){
+                  sauce.likes++; // Incriment likes
+                  sauce.usersLiked.push(user.id); // Add liker's username into array of likedBy 
+                  // Save sauce post data
+                  sauce.save((err) => { console.log("étape 8");
+                  // Check if error was found
+                    if (err) {  console.log("étape C");
+                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
+                      } else
+                    {   console.log("étape 8.2");
+                        res.json({ success: true, message: 'Sauce liked!' }); // Return success message
                       }
+                    console.log("étape finale");
+                  });  
+              }   else
+              {
+                if (like == -1) {
+                  sauce.dislikes++; // Incriment likes
+                  sauce.usersDisliked.push(user.id); // Add liker's username into array of likedBy
+                  // Save sauce post data
+                  sauce.save((err) => { console.log("étape 8");
+                  // Check if error was found
+                    if (err) {  console.log("étape C");
+                        res.json({ success: false, message: 'Something went wrong.' }); // Return error message
+                    } else
+                    {  console.log("étape 8.2");
+                        res.json({ success: true, message: 'Sauce liked!' }); // Return success message
                     }
-                  }                  
+                    console.log("étape finale");
+                  });
+                } else
+                { 
+                  if( like == 0);{
+                    if (sauce.usersLiked.includes(user.id)){
+                        sauce.likes--; // Decrease likes by one
+                        console.log("étape 6.1");
+                        const arrayIndex = sauce.usersLiked.indexOf(user.id); // Check where username is inside of the array                                
+                        sauce.usersLiked.splice(arrayIndex, 1); // Remove username from index
+                        console.log("étape 6.3");  
+                    } else
+                    {
+                        if (sauce.usersDisliked.includes(user.id)) {
+                          console.log("étape 7");
+                          sauce.dislikes--; // Reduce the total number of dislikes
+                          const arrayIndex = sauce.usersDisliked.indexOf(user.id); // Get the index of the username in the array for removal
+                          sauce.usersDisliked.splice(arrayIndex, 1); // Remove user from array
+                        }
+                    }
+                    // Save sauce post data
+                    sauce.save((err) => { console.log("étape 8");
+                    // Check if error was found
+                      if (err) {  console.log("étape C");
+                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
+                      } else
+                      {  console.log("étape 8.2");
+                          res.json({ success: true, message: 'Sauce liked!' }); // Return success message
+                      }
+                      console.log("étape finale");
+                  });
+                  }
                 }
-              }
+              } 
+            }
           });
         }
       }     
     });
-  }
-  
+  }  
 }
