@@ -3,96 +3,35 @@ const User = require('../models/User');
 const fs = require('fs');
 
 exports.Likes = ( req, res, next) =>  {
-    // Check if id was passed provided in request body  
-    console.log("begin");    
-    const like = req.body.like;
-    console.log(like);
-   if (!req.params.id) { 
-     res.json({ success: false, message: 'No id was provided.' }); // Return error message
-   } else
-   {
-     // Search the database with id
-      Sauce.findOne({ _id: req.params.id }, (err, sauce) => {
-         // Check if error was encountered
-        if (err) { 
-          res.json({ success: false, message: 'Invalid sauce id' }); // Return error message
-        } else
-        {
-         // Check if id matched the id of a sauce  in the database
-          if (!sauce) {
-            res.json({ success: false, message: 'That sauce was not found.' }); // Return error message
-          } else 
-          {   
-           // Get data from user that is signed in
-            User.findOne({ _id: req.body.userId }, (err, user) => {    
-              // Check if error was found
-              if (err) {  
-              res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-              } else
-              { 
-              
-              if (like == 1){
-                    sauce.likes++; // Incriment likes
-                    sauce.usersLiked.push(user.id); // Add liker's username into array of usersLiked 
-                    // Save sauce data
-                    sauce.save((err) => { 
-                    // Check if error was found
-                      if (err) { 
-                            res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else
-                      {   
-                          res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                        }
-                      console.log("étape finale");
-                    });  
-                }   else
-                {
-                  if (like == -1) {
-                    sauce.dislikes++; // Incriment likes
-                    sauce.usersDisliked.push(user.id); // Add liker's username into array of usersDisliked
-                    // Save sauce  data
-                    sauce.save((err) => { 
-                    // Check if error was found
-                      if (err) {  
-                          res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                      } else
-                      {  
-                          res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                      }
-                    });
-                  } else
-                  { 
-                    if( like == 0);{
-                      if (sauce.usersLiked.includes(user.id)){
-                          sauce.likes--; // Decrease likes by one
-                          const arrayIndex = sauce.usersLiked.indexOf(user.id); // Check where username is inside of the array                               
-                          sauce.usersLiked.splice(arrayIndex, 1); // Remove username from index
-                          
-                      } else
-                      {
-                          if (sauce.usersDisliked.includes(user.id)) {
-                            sauce.dislikes--; // Reduce the total number of dislikes
-                            const arrayIndex = sauce.usersDisliked.indexOf(user.id); // Get the index of the username in the array for removal
-                            sauce.usersDisliked.splice(arrayIndex, 1); // Remove user from array
-                          }
-                      }
-                      // Save sauce  data
-                      sauce.save((err) => {
-                      // Check if error was found
-                        if (err) { 
-                            res.json({ success: false, message: 'Something went wrong.' }); // Return error message
-                        } else
-                        {   res.json({ success: true, message: 'Sauce liked!' }); // Return success message
-                        }
-                        console.log("étape finale");
-                    });
-                    }
-                  }
-                } 
-              }
-            });
-          }
-        }     
-      });
-    }  
-  }
+  
+  Sauce.findOne({ _id: req.params.id })
+  .then(sauce => {
+    const userId = req.body.userId;
+    const userWantsToLike = (req.body.like == 1);
+    const userWantsToDislike = (req.body.like == -1);
+    const userWantsToCancel = ( req.body.like == 0);
+    const userCanLike = (!sauce.usersLiked.includes(userId));
+    const userCanDislike = (!sauce.usersDisliked.includes(userId));
+    const notTheFirstVote = (sauce.usersLiked.includes(userId) || sauce.usersDisliked.includes(userId));
+
+    if (userWantsToLike && userCanLike)  {sauce.usersLiked.push(userId)};
+    if (userWantsToDislike && userCanDislike) {sauce.usersDisliked.push(userId)};
+
+    if (userWantsToCancel && notTheFirstVote)  {
+      if  (sauce.usersLiked.includes(userId)) {
+        let index = sauce.usersLiked.indexOf(userId);
+        sauce.usersLiked.splice(index, 1);
+      } else {
+        let index = sauce.usersDisliked.indexOf(userId);
+        sauce.usersDisliked.splice(index, 1);
+      }
+    }
+    sauce.likes = sauce.usersLiked.length;
+    sauce.dislikes = sauce.usersDisliked.length;
+    const updateSauce = sauce;
+    updateSauce.save();
+    return updateSauce;
+  })
+  .then(sauce => res.status(200).json(sauce))
+  .catch(error => res.status(400).json({ error}));
+}
