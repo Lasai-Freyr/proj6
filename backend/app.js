@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 const dotenv = require('dotenv').config();
+const rateLimiter = require("./middleware/rateLimiter");
 
 const saucesRoutes = require('./routes/sauces');
 const userRoutes = require('./routes/user');
@@ -19,6 +20,7 @@ mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@${
 
 const app = express();
 app.use(helmet());
+app.use(rateLimiter);
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
