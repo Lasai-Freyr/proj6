@@ -12,9 +12,6 @@ module.exports = (req, res, next) => {
       next();
     }
   } catch {
-    console.log("error ici");
-    //console.log(userId);
-    //console.log(decodedToken.userId);
     res.status(401).json({
       error: new Error('Invalid request!')
     });

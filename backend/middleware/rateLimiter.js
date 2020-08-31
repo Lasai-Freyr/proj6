@@ -7,4 +7,4 @@ module.exports =  rateLimit({
   max: 100,
   message: 'You have exceeded the 100 requests in 24 hrs limit!', 
   headers: true,
-});console.log("ratelImiter working");
+});
