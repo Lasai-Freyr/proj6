@@ -12,10 +12,16 @@ exports.signup = (req, res, next) => {
         });
         user.save()
           .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-          .catch(error => res.status(400).json({ error }));
+          .catch(error => {
+           // res.status(409).json({ message: "cet utilisateur existe déjà" });
+           console.log("cde");
+          } )
       })
-      .catch(error => res.status(500).json({ error }));
-  };
+      .catch(error => {
+        //res.status(500).json({ error }); 
+        console.log("abc");
+      } )
+  }; 
 
   exports.login = (req, res, next) => {
     User.findOne({ email: req.body.email })
